@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  deadline    DateTime
+  status      String     @default("to_do") // in_progress or completed
+  projectId   Int
+  assignedTo  Int?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt
+  available   Boolean    @default(true)
+
+  // project     Project?   @relation(fields: [projectId], references: [id])
+  // assignedUser User?     @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
+  comments    Comment[]
+
+  @@map("tasks")
+  @@index([available])
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  content   String
+  taskId    Int
+  userId    Int?
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  task      Task       @relation(fields: [taskId], references: [id])
+  // user      User?      @relation(fields: [userId], references: [id])
+  notifications Notification[]
+
+
+  @@map("comments")
+}
+
+model Notification {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  isRead    Boolean    @default(false) @map("is_read")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  // user      User       @relation(fields: [userId], references: [id])
+  comment   Comment    @relation(fields: [commentId], references: [id])
+
+  @@map("notifications")
+}
