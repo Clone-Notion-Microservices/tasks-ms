@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { PaginationDto } from '../common';
 
 @Controller()
 export class TasksController {
@@ -14,8 +15,8 @@ export class TasksController {
   }
 
   @MessagePattern('findAllTasks')
-  findAll() {
-    return this.tasksService.findAll();
+  findAll(queryDto: PaginationDto) {
+    return this.tasksService.findAll(queryDto);
   }
 
   @MessagePattern('findOneTask')
@@ -23,12 +24,15 @@ export class TasksController {
     return this.tasksService.findOne(id);
   }
 
-  @MessagePattern('updateTask')
-  update(@Payload() data) {
-    return this.tasksService.update(data.id, data);
+  @MessagePattern('findOneByUser')
+  findOneByUser(@Payload() id: number) {
+    return this.tasksService.findOneByUser(id);
   }
 
-
+  @MessagePattern('updateTask')
+  update(@Payload() UpdateTaskDto: UpdateTaskDto) {
+    return this.tasksService.update(UpdateTaskDto.id, UpdateTaskDto);
+  }
 
   @MessagePattern('removeTask')
   remove(@Payload() id: number) {
